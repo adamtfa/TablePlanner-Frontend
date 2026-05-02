@@ -1,11 +1,21 @@
 <script setup lang="ts"></script>
 
 <template>
-  <h1>You did it!</h1>
-  <p>
-    Visit <a href="https://vuejs.org/" target="_blank" rel="noopener">vuejs.org</a> to read the
-    documentation
-  </p>
+  <nav>
+    <RouterLink to="/">Home</RouterLink>
+    <RouterLink to="/about">About</RouterLink>
+  </nav>
+  <RouterView />
 </template>
 
-<style scoped></style>
+<style>
+body {
+  font-family: Verdana, sans-serif;
+  color: #76b900;
+}
+
+nav a {
+  margin: 0 10px;
+}
+
+</style>
