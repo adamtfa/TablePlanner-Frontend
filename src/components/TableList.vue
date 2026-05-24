@@ -4,7 +4,7 @@
     <ul>
       <li v-for="table in tables" :key="table.tableNumber">
         Number: {{ table.tableNumber }} - Capacity: {{ table.capacity }} - Availability:
-        {{ table.isAvailable }}
+        {{ table.available }}
       </li>
     </ul>
   </div>
@@ -16,7 +16,7 @@ import { ref, onMounted } from 'vue'
 type RestaurantTable = {
   tableNumber: number
   capacity: number
-  isAvailable: boolean
+  available: boolean
 }
 
 defineProps<{
