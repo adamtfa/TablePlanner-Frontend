@@ -11,6 +11,8 @@
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted } from 'vue'
+
 type RestaurantTable = {
   tableNumber: number
   capacity: number
@@ -21,17 +23,25 @@ defineProps<{
   title: string
 }>()
 
-const tables: RestaurantTable[] = [
-  { tableNumber: 1, capacity: 2, isAvailable: true },
-  { tableNumber: 2, capacity: 4, isAvailable: false },
-  { tableNumber: 3, capacity: 6, isAvailable: true },
-]
+const tables = ref<RestaurantTable[]>([])
+
+onMounted(() => {
+  const endpoint = import.meta.env.VITE_APP_BACKEND_BASE_URL + '/tables'
+  const requestOptions = {
+    method: 'GET',
+    redirect: 'follow' as RequestRedirect,
+  }
+  fetch(endpoint, requestOptions)
+    .then((response) => response.json())
+    .then((result) => {
+      tables.value = result
+    })
+    .catch((error) => console.log('error', error))
+})
 </script>
 
 <style scoped>
-
 li {
-margin: 10px 0;
+  margin: 10px 0;
 }
-
 </style>
