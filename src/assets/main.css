@@ -1,0 +1,25 @@
+:root {
+
+  --font-family: Inter;
+
+  --background-main: #1a1714;
+  --background-card: #2a2522;
+
+  --accent-main: #c9a44c;
+  --accent-hover: #b08d3a;
+
+  --text-main: #f0e8da;
+  --text-secondary: #b3a99a;
+}
+
+body {
+  font-family: var(--font-family), sans-serif;
+  background-color: var(--background-main);
+  color: var(--text-main);
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+}
