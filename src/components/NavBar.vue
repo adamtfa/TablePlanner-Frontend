@@ -6,7 +6,6 @@
       <div class="logo">TablePlanner</div>
       <ul class="nav-links">
         <li><RouterLink to="/">Home</RouterLink></li>
-        <li><RouterLink to="/about">About</RouterLink></li>
         <li><RouterLink to="/tables">Tables</RouterLink></li>
         <li><RouterLink to="/customers">Customers</RouterLink></li>
         <li><RouterLink to="/reservations">Reservations</RouterLink></li>
@@ -19,11 +18,11 @@
 <style scoped>
 header {
   background-color: var(--background-card);
-  border-bottom: 1px solid rgba(201, 164, 76, 0.1);
+  border: 1px solid rgba(201, 164, 76, 0.1);
+  border-radius: 12px;
   padding: 1rem 0;
+  margin: 1.5rem;
   position: sticky;
-  top: 0;
-  z-index: 100;
 }
 
 .nav-container {
@@ -59,7 +58,7 @@ header {
 }
 
 .nav-links a:hover {
-  color: var(--accent-main);
+  color: var(--accent-hover);
   opacity: 0.75;
 }
 
