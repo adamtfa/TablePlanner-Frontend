@@ -79,7 +79,7 @@ main {
 .card {
   background-color: var(--background-card);
   color: var(--text-main);
-  border: 1px solid rgba(201, 164, 76, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 12px;
   padding: 2rem;
   text-align: center;
@@ -108,7 +108,7 @@ main {
 
 .card p {
   color: var(--text-secondary);
-  font-size: 0.95rem;
+  font-size: 1rem;
   margin: 0 auto;
 }
 </style>
