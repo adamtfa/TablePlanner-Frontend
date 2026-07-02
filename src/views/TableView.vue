@@ -7,6 +7,8 @@
       </button>
     </div>
 
+    <div v-if="deleteError" class="error-banner">{{ deleteError }}</div>
+
     <div v-if="showForm" class="modal-overlay" @click="closeForm">
       <div class="form-card" @click.stop>
         <h2>{{ editingId === null ? 'Add table' : 'Edit table' }}</h2>
@@ -79,6 +81,7 @@ const tableNumberField = ref<number | string | null>(null)
 const capacityField = ref<number | string | null>(null)
 const isAvailableField = ref<boolean>(false)
 const tables = ref<RestaurantTable[]>([])
+const deleteError = ref<string>('')
 const errors = ref<{ tableNumber: string; capacity: string }>({
   tableNumber: '',
   capacity: '',
@@ -148,11 +151,19 @@ function deleteTable(id: number) {
   const requestOptions = {
     method: 'DELETE',
   }
+  deleteError.value = ''
   fetch(endpoint, requestOptions)
-    .then(() => {
+    .then((response) => {
+      if (!response.ok) {
+        return response.json().then((data) => {
+          throw new Error(data.message)
+        })
+      }
       loadTables()
     })
-    .catch((error) => console.log('error', error))
+    .catch((error) => {
+      deleteError.value = error.message
+    })
 }
 
 function closeForm() {
@@ -178,10 +189,7 @@ function validateForm(): boolean {
   } else if (Number(capacityField.value) <= 0) {
     errors.value.capacity = 'Capacity must be greater than 0.'
   }
-  return (
-    errors.value.tableNumber === '' &&
-    errors.value.capacity === ''
-  )
+  return errors.value.tableNumber === '' && errors.value.capacity === ''
 }
 </script>
 
@@ -223,6 +231,16 @@ main {
 
 .btn-primary:hover {
   background-color: var(--accent-hover);
+}
+
+.error-banner {
+  background-color: rgba(224, 85, 85, 0.15);
+  border: 1px solid #e05555;
+  color: #e05555;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  text-align: center;
 }
 
 .empty-state {

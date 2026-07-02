@@ -7,6 +7,8 @@
       </button>
     </div>
 
+    <div v-if="deleteError" class="error-banner">{{ deleteError }}</div>
+
     <div v-if="showForm" class="modal-overlay" @click="closeForm()">
       <div class="form-card" @click.stop>
         <h2>{{ editingId === null ? 'Add customer' : 'Edit customer' }}</h2>
@@ -83,6 +85,7 @@ const firstNameField = ref<string>('')
 const lastNameField = ref<string>('')
 const phoneNumberField = ref<string>('')
 const customers = ref<Customer[]>([])
+const deleteError = ref<string>('')
 const errors = ref<{ firstName: string; lastName: string; phoneNumber: string }>({
   firstName: '',
   lastName: '',
@@ -153,11 +156,19 @@ function deleteCustomer(id: number) {
   const requestOptions = {
     method: 'DELETE',
   }
+  deleteError.value = ''
   fetch(endpoint, requestOptions)
-    .then(() => {
+    .then((response) => {
+      if (!response.ok) {
+        return response.json().then((data) => {
+          throw new Error(data.message)
+        })
+      }
       loadCustomers()
     })
-    .catch((error) => console.log('error', error))
+    .catch((error) => {
+      deleteError.value = error.message
+    })
 }
 
 function closeForm() {
@@ -185,9 +196,7 @@ function validateForm(): boolean {
     errors.value.phoneNumber = 'Phone number is required.'
   }
   return (
-    errors.value.firstName === '' &&
-    errors.value.lastName === '' &&
-    errors.value.phoneNumber === ''
+    errors.value.firstName === '' && errors.value.lastName === '' && errors.value.phoneNumber === ''
   )
 }
 </script>
@@ -230,6 +239,16 @@ main {
 
 .btn-primary:hover {
   background-color: var(--accent-hover);
+}
+
+.error-banner {
+  background-color: rgba(224, 85, 85, 0.15);
+  border: 1px solid #e05555;
+  color: #e05555;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  text-align: center;
 }
 
 .empty-state {
