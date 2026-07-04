@@ -17,6 +17,7 @@
               type="date"
               placeholder="Date"
               :class="{ 'input-error': errors.date }"
+              @input="errors.date = ''"
             />
             <span v-if="errors.date" class="error-text">{{ errors.date }}</span>
           </div>
@@ -26,6 +27,7 @@
               type="time"
               placeholder="Time"
               :class="{ 'input-error': errors.time }"
+              @input="errors.time = ''"
             />
             <span v-if="errors.time" class="error-text">{{ errors.time }}</span>
           </div>
@@ -33,13 +35,18 @@
             <input
               v-model="numberOfGuestsField"
               type="text"
-              placeholder="Number of guests"
+              placeholder="Number of guests (max. 8)"
               :class="{ 'input-error': errors.numberOfGuests }"
+              @input="errors.numberOfGuests = ''"
             />
             <span v-if="errors.numberOfGuests" class="error-text">{{ errors.numberOfGuests }}</span>
           </div>
           <div class="field-wrapper">
-            <select v-model="customerIdField" :class="{ 'input-error': errors.customerId }">
+            <select
+              v-model="customerIdField"
+              :class="{ 'input-error': errors.customerId }"
+              @change="errors.customerId = ''"
+            >
               <option :value="null" disabled>Select customer</option>
               <option v-for="customer in customers" :key="customer.id" :value="customer.id">
                 {{ customer.firstName }} {{ customer.lastName }}
@@ -48,7 +55,11 @@
             <span v-if="errors.customerId" class="error-text">{{ errors.customerId }}</span>
           </div>
           <div class="field-wrapper">
-            <select v-model="tableIdField" :class="{ 'input-error': errors.tableId }">
+            <select
+              v-model="tableIdField"
+              :class="{ 'input-error': errors.tableId }"
+              @change="errors.tableId = ''"
+            >
               <option :value="null" disabled>Select table</option>
               <option v-for="table in tables" :key="table.id" :value="table.id">
                 Table {{ table.tableNumber }}
@@ -72,9 +83,9 @@
         <div class="card-info">
           <i class="mdi mdi-calendar-clock-outline"></i>
           <h2>{{ reservation.customer.firstName }} {{ reservation.customer.lastName }}</h2>
-          <p>Date: {{ reservation.date }} Time: {{ reservation.time }}</p>
+          <p>Date: {{ reservation.date }} Time: {{ formatTime(reservation.time) }}</p>
           <p>
-            Guests: {{ reservation.numberOfGuests }} - Table: {{ reservation.table.tableNumber }}
+            Table: {{ reservation.table.tableNumber }} - Guests: {{ reservation.numberOfGuests }}
           </p>
         </div>
         <div class="card-actions">
@@ -241,7 +252,10 @@ function deleteReservation(id: number) {
     method: 'DELETE',
   }
   fetch(endpoint, requestOptions)
-    .then(() => {
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error('Failed to delete reservation.')
+      }
       loadReservations()
     })
     .catch((error) => console.log('error', error))
@@ -255,6 +269,13 @@ function closeForm() {
   customerIdField.value = null
   tableIdField.value = null
   editingId.value = null
+  errors.value = {
+    date: '',
+    time: '',
+    numberOfGuests: '',
+    customerId: '',
+    tableId: '',
+  }
 }
 
 function validateForm(): boolean {
@@ -281,8 +302,10 @@ function validateForm(): boolean {
 
   if (numberOfGuestsField.value === null || numberOfGuestsField.value === '') {
     errors.value.numberOfGuests = 'Number of guests is required.'
-  } else if (Number(numberOfGuestsField.value) <= 0) {
-    errors.value.numberOfGuests = 'Number of guests must be greater than 0.'
+  } else if (isNaN(Number(numberOfGuestsField.value)) || Number(numberOfGuestsField.value) <= 0) {
+    errors.value.numberOfGuests = 'Number of guests must be a positive number.'
+  } else if (Number(numberOfGuestsField.value) > 8) {
+    errors.value.numberOfGuests = 'Number of guests cannot be greater than 8.'
   }
 
   if (customerIdField.value === null) {
@@ -300,6 +323,14 @@ function validateForm(): boolean {
     errors.value.customerId === '' &&
     errors.value.tableId === ''
   )
+}
+
+function formatTime(time: string): string {
+  const [hoursStr, minutesStr] = time.split(':')
+  const hours = Number(hoursStr)
+  const period = hours >= 12 ? 'PM' : 'AM'
+  const displayHours = hours % 12 === 0 ? 12 : hours % 12
+  return `${displayHours}:${minutesStr} ${period}`
 }
 </script>
 
@@ -345,7 +376,7 @@ main {
 
 .empty-state {
   text-align: center;
-  padding: 3rem;
+  padding: 12rem;
   background-color: var(--background-card);
   border-radius: 12px;
   color: var(--text-secondary);
@@ -361,6 +392,7 @@ main {
 }
 
 .cards-grid {
+  margin-top: 5rem;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 1.5rem;

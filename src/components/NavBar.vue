@@ -3,7 +3,7 @@
 <template>
   <header>
     <nav class="nav-container">
-      <div class="logo">TablePlanner</div>
+      <div class="logo"><RouterLink to="/">TablePlanner</RouterLink></div>
       <ul class="nav-links">
         <li><RouterLink to="/">Home</RouterLink></li>
         <li><RouterLink to="/tables">Tables</RouterLink></li>
@@ -33,12 +33,13 @@ header {
   align-items: center;
 }
 
-.logo {
+.logo a {
   font-size: 1.5rem;
   font-weight: 600;
   color: var(--accent-main);
   letter-spacing: 1px;
   cursor: pointer;
+  text-decoration: none;
 }
 
 .nav-links {

@@ -19,6 +19,7 @@
               type="text"
               placeholder="Table number"
               :class="{ 'input-error': errors.tableNumber }"
+              @input="errors.tableNumber = ''"
             />
             <span v-if="errors.tableNumber" class="error-text">{{ errors.tableNumber }}</span>
           </div>
@@ -26,15 +27,12 @@
             <input
               v-model="capacityField"
               type="text"
-              placeholder="Capacity"
+              placeholder="Capacity (max. 8)"
               :class="{ 'input-error': errors.capacity }"
+              @input="errors.capacity = ''"
             />
             <span v-if="errors.capacity" class="error-text">{{ errors.capacity }}</span>
           </div>
-          <label class="checkbox-label">
-            Is the table available?
-            <input v-model="isAvailableField" type="checkbox" />
-          </label>
         </div>
         <button class="btn-primary" @click="saveTable()">
           {{ editingId === null ? 'Save' : 'Update' }}
@@ -52,7 +50,9 @@
           <i class="mdi mdi-table-furniture"></i>
           <h2>Table number {{ table.tableNumber }}</h2>
           <p>Capacity: {{ table.capacity }}</p>
-          <p>{{ table.available ? 'Available' : 'Not available' }}</p>
+          <p :class="table.available ? 'status-available' : 'status-unavailable'">
+            {{ table.available ? 'Available' : 'Reserved' }}
+          </p>
         </div>
         <div class="card-actions">
           <button class="btn-edit" @click="editTable(table)">Edit</button>
@@ -64,7 +64,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 
 type RestaurantTable = {
   id: number
@@ -73,13 +73,28 @@ type RestaurantTable = {
   available: boolean
 }
 
-onMounted(() => loadTables())
+let pollingInterval: ReturnType<typeof setInterval> | undefined
+let errorTimeout: ReturnType<typeof setTimeout> | undefined
+
+onMounted(() => {
+  loadTables()
+  pollingInterval = setInterval(loadTables, 15000)
+})
+
+onUnmounted(() => {
+  if (pollingInterval) {
+    clearInterval(pollingInterval)
+  }
+  if (errorTimeout) {
+    clearTimeout(errorTimeout)
+  }
+})
 
 const showForm = ref<boolean>(false)
 const editingId = ref<number | null>(null)
 const tableNumberField = ref<number | string | null>(null)
 const capacityField = ref<number | string | null>(null)
-const isAvailableField = ref<boolean>(false)
+const isAvailableField = ref<boolean>(true)
 const tables = ref<RestaurantTable[]>([])
 const deleteError = ref<string>('')
 const errors = ref<{ tableNumber: string; capacity: string }>({
@@ -129,7 +144,12 @@ function saveTable() {
   }
 
   fetch(endpoint, requestOptions)
-    .then((response) => response.json())
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error('Failed to save table.')
+      }
+      return response.json()
+    })
     .then((data) => {
       console.log('Success:', data)
       loadTables()
@@ -163,6 +183,12 @@ function deleteTable(id: number) {
     })
     .catch((error) => {
       deleteError.value = error.message
+      if (errorTimeout) {
+        clearTimeout(errorTimeout)
+      }
+      errorTimeout = setTimeout(() => {
+        deleteError.value = ''
+      }, 3000)
     })
 }
 
@@ -170,8 +196,9 @@ function closeForm() {
   showForm.value = false
   tableNumberField.value = null
   capacityField.value = null
-  isAvailableField.value = false
+  isAvailableField.value = true
   editingId.value = null
+  errors.value = { tableNumber: '', capacity: '' }
 }
 
 function validateForm(): boolean {
@@ -180,14 +207,16 @@ function validateForm(): boolean {
 
   if (tableNumberField.value === null || tableNumberField.value === '') {
     errors.value.tableNumber = 'Table number is required.'
-  } else if (Number(tableNumberField.value) <= 0) {
-    errors.value.tableNumber = 'Table number must be positive.'
+  } else if (isNaN(Number(tableNumberField.value)) || Number(tableNumberField.value) <= 0) {
+    errors.value.tableNumber = 'Table number must be a positive number.'
   }
 
   if (capacityField.value === null || capacityField.value === '') {
     errors.value.capacity = 'Capacity is required.'
-  } else if (Number(capacityField.value) <= 0) {
-    errors.value.capacity = 'Capacity must be greater than 0.'
+  } else if (isNaN(Number(capacityField.value)) || Number(capacityField.value) <= 0) {
+    errors.value.capacity = 'Capacity must be a positive number.'
+  } else if (Number(capacityField.value) > 8) {
+    errors.value.capacity = 'Capacity cannot be greater than 8.'
   }
   return errors.value.tableNumber === '' && errors.value.capacity === ''
 }
@@ -245,7 +274,7 @@ main {
 
 .empty-state {
   text-align: center;
-  padding: 3rem;
+  padding: 12rem;
   background-color: var(--background-card);
   border-radius: 12px;
   color: var(--text-secondary);
@@ -261,6 +290,7 @@ main {
 }
 
 .cards-grid {
+  margin-top: 5rem;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 1.5rem;
@@ -308,6 +338,14 @@ main {
   color: var(--text-secondary);
   margin: 0;
   font-size: 0.9rem;
+}
+
+.card-info .status-available {
+  color: #4caf50;
+}
+
+.card-info .status-unavailable {
+  color: #e05555;
 }
 
 .card-actions {
@@ -412,12 +450,6 @@ main {
 .form-card .btn-primary {
   width: auto;
   padding: 0.75rem 2rem;
-}
-
-.checkbox-label {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
 }
 
 .field-wrapper {

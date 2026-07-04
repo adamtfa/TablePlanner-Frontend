@@ -66,4 +66,8 @@ main {
 .hero p span {
   color: var(--accent-main);
 }
+
+.hero a {
+  color: var(--accent-main);
+}
 </style>

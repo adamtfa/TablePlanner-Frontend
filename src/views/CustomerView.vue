@@ -19,6 +19,7 @@
               type="text"
               placeholder="First name"
               :class="{ 'input-error': errors.firstName }"
+              @input="errors.firstName = ''"
             />
             <span v-if="errors.firstName" class="error-text">{{ errors.firstName }}</span>
           </div>
@@ -28,6 +29,7 @@
               type="text"
               placeholder="Last name"
               :class="{ 'input-error': errors.lastName }"
+              @input="errors.lastName = ''"
             />
             <span v-if="errors.lastName" class="error-text">{{ errors.lastName }}</span>
           </div>
@@ -37,6 +39,7 @@
               type="text"
               placeholder="Phone number"
               :class="{ 'input-error': errors.phoneNumber }"
+              @input="errors.phoneNumber = ''"
             />
             <span v-if="errors.phoneNumber" class="error-text">{{ errors.phoneNumber }}</span>
           </div>
@@ -68,7 +71,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 
 type Customer = {
   id: number
@@ -78,6 +81,14 @@ type Customer = {
 }
 
 onMounted(() => loadCustomers())
+
+let errorTimeout: ReturnType<typeof setTimeout> | undefined
+
+onUnmounted(() => {
+  if (errorTimeout) {
+    clearTimeout(errorTimeout)
+  }
+})
 
 const showForm = ref<boolean>(false)
 const editingId = ref<number | null>(null)
@@ -134,7 +145,12 @@ function saveCustomer() {
   }
 
   fetch(endpoint, requestOptions)
-    .then((response) => response.json())
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error('Failed to save customer.')
+      }
+      return response.json()
+    })
     .then((data) => {
       console.log('Success:', data)
       loadCustomers()
@@ -168,6 +184,12 @@ function deleteCustomer(id: number) {
     })
     .catch((error) => {
       deleteError.value = error.message
+      if (errorTimeout) {
+        clearTimeout(errorTimeout)
+      }
+      errorTimeout = setTimeout(() => {
+        deleteError.value = ''
+      }, 3000)
     })
 }
 
@@ -177,6 +199,7 @@ function closeForm() {
   lastNameField.value = ''
   phoneNumberField.value = ''
   editingId.value = null
+  errors.value = { firstName: '', lastName: '', phoneNumber: '' }
 }
 
 function validateForm(): boolean {
@@ -184,17 +207,27 @@ function validateForm(): boolean {
   errors.value.lastName = ''
   errors.value.phoneNumber = ''
 
+  const nameRegex = /^[A-Za-zÀ-ÖØ-öø-ÿ' -]+$/
+  const phoneRegex = /^[0-9+\-. /]+$/
+
   if (firstNameField.value === '') {
     errors.value.firstName = 'First name is required.'
+  } else if (!nameRegex.test(firstNameField.value)) {
+    errors.value.firstName = 'First name may only contain letters.'
   }
 
   if (lastNameField.value === '') {
     errors.value.lastName = 'Last name is required.'
+  } else if (!nameRegex.test(lastNameField.value)) {
+    errors.value.lastName = 'Last name may only contain letters.'
   }
 
   if (phoneNumberField.value === '') {
     errors.value.phoneNumber = 'Phone number is required.'
+  } else if (!phoneRegex.test(phoneNumberField.value)) {
+    errors.value.phoneNumber = 'Phone number may only contain digits and + - . /'
   }
+
   return (
     errors.value.firstName === '' && errors.value.lastName === '' && errors.value.phoneNumber === ''
   )
@@ -253,7 +286,7 @@ main {
 
 .empty-state {
   text-align: center;
-  padding: 3rem;
+  padding: 12rem;
   background-color: var(--background-card);
   border-radius: 12px;
   color: var(--text-secondary);
@@ -269,6 +302,7 @@ main {
 }
 
 .cards-grid {
+  margin-top: 5rem;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 1.5rem;

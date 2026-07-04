@@ -46,7 +46,7 @@ main {
 }
 
 .hero {
-  margin: 4rem auto;
+  margin: 2rem auto;
   text-align: center;
 }
 
