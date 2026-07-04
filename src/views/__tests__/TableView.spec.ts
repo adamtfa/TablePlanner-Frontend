@@ -30,10 +30,10 @@ describe('TableView', () => {
 
     await wrapper.find('.section-header .btn-primary').trigger('click')
     await wrapper.find('input[placeholder="Table number"]').setValue('-1')
-    await wrapper.find('input[placeholder="Capacity"]').setValue('4')
+    await wrapper.find('input[placeholder="Capacity (max. 8)"]').setValue('4')
     await wrapper.find('.form-card .btn-primary').trigger('click')
 
-    expect(wrapper.text()).toContain('Table number must be positive.')
+    expect(wrapper.text()).toContain('Table number must be a positive number.')
   })
 
   it('should load and display tables returned by the backend', async () => {
@@ -56,7 +56,7 @@ describe('TableView', () => {
     const wrapper = mount(TableView)
     await wrapper.find('.section-header .btn-primary').trigger('click')
     await wrapper.find('input[placeholder="Table number"]').setValue('7')
-    await wrapper.find('input[placeholder="Capacity"]').setValue('2')
+    await wrapper.find('input[placeholder="Capacity (max. 8)"]').setValue('2')
     await wrapper.find('.form-card .btn-primary').trigger('click')
     await flushPromises()
 
