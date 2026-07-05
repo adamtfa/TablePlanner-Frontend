@@ -15,6 +15,8 @@
         <div class="form-fields">
           <div class="field-wrapper">
             <input
+              id="table-number"
+              name="tableNumber"
               v-model="tableNumberField"
               type="text"
               placeholder="Table number"
@@ -25,6 +27,8 @@
           </div>
           <div class="field-wrapper">
             <input
+              id="table-capacity"
+              name="capacity"
               v-model="capacityField"
               type="text"
               placeholder="Capacity (max. 8)"
@@ -65,6 +69,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
+import { authFetch } from '@/services/auth'
 
 type RestaurantTable = {
   id: number
@@ -108,7 +113,7 @@ function loadTables() {
     method: 'GET',
     redirect: 'follow' as RequestRedirect,
   }
-  fetch(endpoint, requestOptions)
+  authFetch(endpoint, requestOptions)
     .then((response) => response.json())
     .then((result) => {
       tables.value = result
@@ -143,7 +148,7 @@ function saveTable() {
     body: JSON.stringify(data),
   }
 
-  fetch(endpoint, requestOptions)
+  authFetch(endpoint, requestOptions)
     .then((response) => {
       if (!response.ok) {
         throw new Error('Failed to save table.')
@@ -172,7 +177,7 @@ function deleteTable(id: number) {
     method: 'DELETE',
   }
   deleteError.value = ''
-  fetch(endpoint, requestOptions)
+  authFetch(endpoint, requestOptions)
     .then((response) => {
       if (!response.ok) {
         return response.json().then((data) => {
@@ -466,7 +471,38 @@ main {
 .error-text {
   color: #e05555;
   font-size: 0.8rem;
-  text-align: left;
-  padding-left: 0.2rem;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  main {
+    margin: 1.5rem 1rem;
+  }
+
+  .section-header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1rem;
+  }
+
+  .cards-grid {
+    grid-template-columns: 1fr;
+    margin-top: 2rem;
+  }
+
+  .table-card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .card-actions {
+    flex-direction: row;
+    justify-content: center;
+  }
+
+  .empty-state {
+    padding: 4rem 1.5rem;
+  }
 }
 </style>

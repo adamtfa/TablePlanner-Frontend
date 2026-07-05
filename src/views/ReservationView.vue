@@ -13,6 +13,8 @@
         <div class="form-fields">
           <div class="field-wrapper">
             <input
+              id="reservation-date"
+              name="date"
               v-model="dateField"
               type="date"
               placeholder="Date"
@@ -23,6 +25,8 @@
           </div>
           <div class="field-wrapper">
             <input
+              id="reservation-time"
+              name="time"
               v-model="timeField"
               type="time"
               placeholder="Time"
@@ -33,6 +37,8 @@
           </div>
           <div class="field-wrapper">
             <input
+              id="reservation-guests"
+              name="numberOfGuests"
               v-model="numberOfGuestsField"
               type="text"
               placeholder="Number of guests (max. 8)"
@@ -43,6 +49,8 @@
           </div>
           <div class="field-wrapper">
             <select
+              id="reservation-customer"
+              name="customerId"
               v-model="customerIdField"
               :class="{ 'input-error': errors.customerId }"
               @change="errors.customerId = ''"
@@ -56,6 +64,8 @@
           </div>
           <div class="field-wrapper">
             <select
+              id="reservation-table"
+              name="tableId"
               v-model="tableIdField"
               :class="{ 'input-error': errors.tableId }"
               @change="errors.tableId = ''"
@@ -99,6 +109,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { authFetch } from '@/services/auth'
 
 type Customer = {
   id: number
@@ -159,7 +170,7 @@ function loadCustomers() {
     method: 'GET',
     redirect: 'follow' as RequestRedirect,
   }
-  fetch(endpoint, requestOptions)
+  authFetch(endpoint, requestOptions)
     .then((response) => response.json())
     .then((result) => {
       customers.value = result
@@ -173,7 +184,7 @@ function loadTables() {
     method: 'GET',
     redirect: 'follow' as RequestRedirect,
   }
-  fetch(endpoint, requestOptions)
+  authFetch(endpoint, requestOptions)
     .then((response) => response.json())
     .then((result) => {
       tables.value = result
@@ -187,7 +198,7 @@ function loadReservations() {
     method: 'GET',
     redirect: 'follow' as RequestRedirect,
   }
-  fetch(endpoint, requestOptions)
+  authFetch(endpoint, requestOptions)
     .then((response) => response.json())
     .then((result) => {
       reservations.value = result
@@ -226,7 +237,7 @@ function saveReservation() {
     body: JSON.stringify(data),
   }
 
-  fetch(endpoint, requestOptions)
+  authFetch(endpoint, requestOptions)
     .then((response) => response.json())
     .then((data) => {
       console.log('Success:', data)
@@ -251,7 +262,7 @@ function deleteReservation(id: number) {
   const requestOptions = {
     method: 'DELETE',
   }
-  fetch(endpoint, requestOptions)
+  authFetch(endpoint, requestOptions)
     .then((response) => {
       if (!response.ok) {
         throw new Error('Failed to delete reservation.')
@@ -578,7 +589,38 @@ main {
 .error-text {
   color: #e05555;
   font-size: 0.8rem;
-  text-align: left;
-  padding-left: 0.2rem;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  main {
+    margin: 1.5rem 1rem;
+  }
+
+  .section-header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1rem;
+  }
+
+  .cards-grid {
+    grid-template-columns: 1fr;
+    margin-top: 2rem;
+  }
+
+  .reservation-card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .card-actions {
+    flex-direction: row;
+    justify-content: center;
+  }
+
+  .empty-state {
+    padding: 4rem 1.5rem;
+  }
 }
 </style>

@@ -1,5 +1,3 @@
-<script setup lang="ts"></script>
-
 <template>
   <main>
     <div class="hero">
@@ -31,7 +29,7 @@
         <p>Create, modify, and cancel reservations through a seamless workflow.</p>
       </RouterLink>
 
-      <RouterLink class="card" to="/login">
+      <RouterLink class="card" to="/login" @click="logout">
         <i class="mdi mdi-door-open"></i>
         <h2>Exit</h2>
         <p>Log out of your TablePlanner and return to the login screen.</p>
@@ -39,6 +37,10 @@
     </div>
   </main>
 </template>
+
+<script setup lang="ts">
+import { logout } from '@/services/auth'
+</script>
 
 <style scoped>
 main {
@@ -110,5 +112,16 @@ main {
   color: var(--text-secondary);
   font-size: 1rem;
   margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+  .hero h1 {
+    font-size: 2rem;
+  }
+
+  .cards-grid {
+    grid-template-columns: 1fr;
+    margin: 2rem auto;
+  }
 }
 </style>

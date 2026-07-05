@@ -15,6 +15,8 @@
         <div class="form-fields">
           <div class="field-wrapper">
             <input
+              id="customer-first-name"
+              name="firstName"
               v-model="firstNameField"
               type="text"
               placeholder="First name"
@@ -25,6 +27,8 @@
           </div>
           <div class="field-wrapper">
             <input
+              id="customer-last-name"
+              name="lastName"
               v-model="lastNameField"
               type="text"
               placeholder="Last name"
@@ -35,6 +39,8 @@
           </div>
           <div class="field-wrapper">
             <input
+              id="customer-phone-number"
+              name="phoneNumber"
               v-model="phoneNumberField"
               type="text"
               placeholder="Phone number"
@@ -72,6 +78,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
+import { authFetch } from '@/services/auth'
 
 type Customer = {
   id: number
@@ -109,7 +116,7 @@ function loadCustomers() {
     method: 'GET',
     redirect: 'follow' as RequestRedirect,
   }
-  fetch(endpoint, requestOptions)
+  authFetch(endpoint, requestOptions)
     .then((response) => response.json())
     .then((result) => {
       customers.value = result
@@ -144,7 +151,7 @@ function saveCustomer() {
     body: JSON.stringify(data),
   }
 
-  fetch(endpoint, requestOptions)
+  authFetch(endpoint, requestOptions)
     .then((response) => {
       if (!response.ok) {
         throw new Error('Failed to save customer.')
@@ -173,7 +180,7 @@ function deleteCustomer(id: number) {
     method: 'DELETE',
   }
   deleteError.value = ''
-  fetch(endpoint, requestOptions)
+  authFetch(endpoint, requestOptions)
     .then((response) => {
       if (!response.ok) {
         return response.json().then((data) => {
@@ -470,7 +477,38 @@ main {
 .error-text {
   color: #e05555;
   font-size: 0.8rem;
-  text-align: left;
-  padding-left: 0.2rem;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  main {
+    margin: 1.5rem 1rem;
+  }
+
+  .section-header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1rem;
+  }
+
+  .cards-grid {
+    grid-template-columns: 1fr;
+    margin-top: 2rem;
+  }
+
+  .customer-card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .card-actions {
+    flex-direction: row;
+    justify-content: center;
+  }
+
+  .empty-state {
+    padding: 4rem 1.5rem;
+  }
 }
 </style>
