@@ -18,15 +18,15 @@ interface to run its day-to-day operations:
 - **Register & log in** — create a restaurant account and sign in. The session
   is kept via a JWT that is automatically attached to every request.
 - **Tables** — add, edit, and delete tables, each showing a live availability
-  status (`Available` / "Reserved") that updates automatically.
+  status (`Available` / `Reserved`) that updates automatically.
 - **Customers** — maintain a guest database (add, edit, delete).
 - **Reservations** — create, edit, and delete reservations that link a customer
   and a table at a chosen date and time.
 - **Input validation** — every form validates its fields before submitting and
   shows inline error messages on the affected inputs.
-- **Graceful error handling** — conflicts (e.g. deleting a table still used by a
+- **Error handling** — conflicts (e.g. deleting a table still used by a
   reservation) surface as a red banner that auto-dismisses after 3 seconds.
-- **Protected routes** — all management pages require authentication; only the
+- **Protected routes** — all management pages require authentication, only the
   login and register pages are public.
 
 ## Tech stack & methods
@@ -36,8 +36,7 @@ interface to run its day-to-day operations:
 - **Vite** as the build tool and dev server
 - **Vue Router** with a global navigation guard for auth-protected routes
 - **Fetch API**, wrapped in an `authFetch` helper that attaches the Bearer token
-- **CSS** — a custom dark/gold theme via CSS variables, scoped per component,
-  no UI framework
+- **CSS** — a custom dark/gold theme via CSS variables, scoped per component
 - **Vitest** with **@vue/test-utils** for unit tests
 
 ## Developer Team
