@@ -65,7 +65,10 @@
         </div>
       </div>
 
-      <button class="btn-primary" @click="submit">Register</button>
+      <button class="btn-primary" @click="submit" :disabled="isSubmitting">
+        <span v-if="isSubmitting" class="spinner-icon"><i class="mdi mdi-timer-sand"></i></span>
+        <span>{{ isSubmitting ? 'Registering…' : 'Register' }}</span>
+      </button>
 
       <p class="switch-link">
         Already have an account? <RouterLink to="/login">Log in here.</RouterLink>
@@ -93,6 +96,7 @@ const errors = ref<{ name: string; email: string; password: string; confirmPassw
   password: '',
   confirmPassword: '',
 })
+const isSubmitting = ref<boolean>(false)
 
 let errorTimeout: ReturnType<typeof setTimeout> | undefined
 let validationErrorTimeout: ReturnType<typeof setTimeout> | undefined
@@ -164,6 +168,7 @@ function submit() {
   if (!validateForm()) {
     return
   }
+  isSubmitting.value = true
 
   register(nameField.value, emailField.value, passwordField.value)
     .then(() => {
@@ -174,6 +179,7 @@ function submit() {
     })
     .catch((error) => {
       registerError.value = error.message
+      isSubmitting.value = false
       if (errorTimeout) {
         clearTimeout(errorTimeout)
       }
@@ -334,9 +340,33 @@ main {
   width: 45%;
   margin-top: 1.25rem;
   font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
-.btn-primary:hover {
+.btn-primary:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.spinner-icon {
+  display: inline-flex;
+  font-size: 1.1rem;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.btn-primary:hover:not(:disabled) {
   background-color: var(--accent-hover);
 }
 

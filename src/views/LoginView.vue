@@ -40,7 +40,10 @@
         </div>
       </div>
 
-      <button class="btn-primary" @click="submit">Sign in</button>
+      <button class="btn-primary" @click="submit" :disabled="isSubmitting">
+        <span v-if="isSubmitting" class="spinner-icon"><i class="mdi mdi-timer-sand"></i></span>
+        <span>{{ isSubmitting ? 'Signing in…' : 'Sign in' }}</span>
+      </button>
 
       <p class="switch-link">
         Not registered yet? <RouterLink to="/register">Register here.</RouterLink>
@@ -64,6 +67,7 @@ const errors = ref<{ identifier: string; password: string }>({
   identifier: '',
   password: '',
 })
+const isSubmitting = ref<boolean>(false)
 
 let errorTimeout: ReturnType<typeof setTimeout> | undefined
 let validationErrorTimeout: ReturnType<typeof setTimeout> | undefined
@@ -115,6 +119,7 @@ function submit() {
   if (!validateForm()) {
     return
   }
+  isSubmitting.value = true
 
   login(identifierField.value, passwordField.value)
     .then(() => {
@@ -130,6 +135,9 @@ function submit() {
       errorTimeout = setTimeout(() => {
         loginError.value = ''
       }, 3000)
+    })
+    .finally(() => {
+      isSubmitting.value = false
     })
 }
 </script>
@@ -272,9 +280,33 @@ main {
   width: 45%;
   margin-top: 1.25rem;
   font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
-.btn-primary:hover {
+.btn-primary:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.spinner-icon {
+  display: inline-flex;
+  font-size: 1.1rem;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.btn-primary:hover:not(:disabled) {
   background-color: var(--accent-hover);
 }
 
