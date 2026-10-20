@@ -8,8 +8,7 @@ The frontend for **TablePlanner**, a web application that lets restaurants manag
 their tables, guests, and reservations. This repository contains the Vue
 single-page application (SPA).
 
-URL: https://tableplanner-frontend.onrender.com
-(Test) Credentials: Test/12345678
+URL: https://tableplanner-frontend.onrender.com (Test) Credentials: Test/12345678
 **Please note that the first request might take 2-3 minutes to load up the backend.**
 
 The matching backend lives in [TablePlanner-Backend](https://github.com/adamtfa/TablePlanner-Backend).
